@@ -1,0 +1,9 @@
+# Configuración local de Claude Code (permisos personales, no se comparten)
+.claude/settings.local.json
+
+# Python
+__pycache__/
+*.pyc
+
+# Sistema
+.DS_Store

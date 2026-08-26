@@ -54,7 +54,7 @@ Formato **rápido** para reuniones semanales y temas acotados: ronda 1 → acta.
 
 ## Modelo de datos
 
-Todo el estado vive en Markdown con un formato fijo, para que lo lean igual las personas, los agentes y las herramientas.
+Todo el estado vive en Markdown con un formato fijo, para que lo lean igual las personas, los agentes y las herramientas (ADR-0002).
 
 **Tarea** (`backlog.md`): `T-NNN`, área responsable, estimación (≤ 4 h), prioridad (P1–P3), semana, dependencias, criterio de hecho y motivo.
 

@@ -41,7 +41,11 @@ LinkedIn, Bluesky, Instagram y X. El comité puede proponer otros (newsletter, Y
 
 ## Situación fiscal y laboral
 
-_(pendiente)_
+El detalle está en `empresa/privado/situacion-personal.md`, que **no se versiona** (ADR-0006). Lo que el comité debe asumir:
+
+- Residencia fiscal en **España**. **Sin alta** actual como autónomo/a ni sociedad.
+- Probablemente **no aplica la tarifa plana** de nueva alta, así que darse de alta cuesta la cuota ordinaria desde el primer mes ⚖️.
+- Hay un **trámite administrativo pendiente** que cualquier actividad o ingreso podría afectar ⚖️. Hasta que se aclare, prudencia con cualquier ingreso y con cómo se presenta el proyecto en público.
 
 ## Calendario
 

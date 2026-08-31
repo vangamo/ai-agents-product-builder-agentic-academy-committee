@@ -7,3 +7,7 @@ __pycache__/
 
 # Sistema
 .DS_Store
+
+# Datos personales del comité: nunca se versionan (docs/adr/0006)
+empresa/privado/*
+!empresa/privado/README.md

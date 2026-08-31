@@ -45,13 +45,13 @@ Antes de esto hice un prototipo con _vibe coding_ para ver hasta dónde llegaba.
 
 ## Fases y pasos
 
-### Fase 0 · Diseño (24–28 ago)
+### Fase 0 · Diseño (24–28 ago) ✅
 
-- [ ] Repositorio, README y `.gitignore`
-- [ ] `planning.md` con el análisis del prototipo (este documento)
-- [ ] `docs/arquitectura.md`: componentes, flujo de una reunión y modelo de datos
-- [ ] ADR-0001 comité de subagentes · ADR-0002 estado en Markdown · ADR-0003 protocolo de consentimiento
-- [ ] `CLAUDE.md` v1: la sesión principal como Secretaría del comité
+- [x] Repositorio, README y `.gitignore`
+- [x] `planning.md` con el análisis del prototipo (este documento)
+- [x] `docs/arquitectura.md`: componentes, flujo de una reunión y modelo de datos
+- [x] ADR-0001 comité de subagentes · ADR-0002 estado en Markdown · ADR-0003 protocolo de consentimiento
+- [x] `CLAUDE.md` v1: la sesión principal como Secretaría del comité
 
 ### Fase 1 · Fuente de verdad (31 ago – 4 sep)
 

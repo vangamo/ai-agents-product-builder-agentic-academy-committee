@@ -38,3 +38,59 @@ Obligatorio para todos los agentes y para la Secretaría. Si algo de aquí choca
 6. **Registro** (Secretaría) y **validación** (persona fundadora, con `/validar`).
 
 Formato **rápido** (reuniones semanales o temas acotados): ronda 1 → acta.
+
+## 4. Reglas de acuerdo
+
+- **Consentimiento, no unanimidad:** una propuesta se acuerda si nadie mantiene una objeción bloqueante. Las reservas se registran, pero no bloquean.
+- **Posiciones:** 👍 apoyo · 🤔 reserva (no bloquea; se anota) · ⛔ objeción bloqueante.
+- **Una ⛔ solo es válida si** la propuesta (a) excede la capacidad, (b) supone un riesgo legal, fiscal o financiero serio, (c) contradice una decisión tomada o el contexto, (d) daña de forma clara la marca o al alumnado, o (e) depende de algo imposible a tiempo. Y **siempre** incluye una alternativa. Las preferencias de gusto no bloquean.
+- **Peso del área:** en un conflicto dentro de un dominio, pesa más el área responsable:
+
+  | Dominio | Área con más peso |
+  |---|---|
+  | Legal y fiscal | `finanzas-legal` |
+  | Viabilidad técnica, seguridad y arquitectura | `producto-tecnologia` |
+  | Pedagogía | `contenidos` |
+  | Canales y marca | `marketing` |
+  | Alumnado y feedback | `ventas-comunidad` |
+  | Capacidad y calendario | `operaciones` |
+  | Prioridad global | `direccion-estrategica` |
+
+- **Veto de capacidad:** `operaciones` puede bloquear cualquier plan que supere 16 h en una semana. Se resuelve recortando o moviendo, nunca ampliando la capacidad.
+- **Desempate:** `direccion-estrategica` decide entre alternativas compatibles con el contexto y lo justifica en el acta.
+- **Escalado obligatorio** a la persona fundadora, como decisión con opciones: cualquier gasto recurrente, o puntual de más de 20 €; compromisos públicos (fechas, precios, promesas); temas legales o fiscales con consecuencias; cambios de alcance o de una decisión tomada; y desacuerdos no resueltos tras la ronda 3.
+
+## 5. Formato de tarea
+
+```
+### T-? · Verbo en infinitivo + objeto concreto
+- Área: <rol responsable> · Propuesta por: <roles>
+- Estimación: X h · Prioridad: P1 | P2 | P3 · Semana: SX
+- Depende de: T-… | D-… | —
+- Hecho cuando: <criterio verificable>
+- Por qué: <objetivo o hipótesis al que contribuye>
+```
+
+- Máximo **4 h** por tarea: si es más, se descompone.
+- **P1:** bloquea a otras o tiene fecha · **P2:** importante en esta fase · **P3:** deseable.
+- Los agentes escriben `T-?`; la Secretaría asigna el ID definitivo al registrar.
+- Las tareas las ejecuta la persona fundadora: verbos de acción («Registrar…», «Escribir…», «Configurar…»). Nada de «Investigar más» sin un entregable concreto.
+- Las horas usan coma decimal (`0,5 h`) y cubren todo: hacer, revisar, publicar y documentar.
+
+## 6. Formato de decisión
+
+```
+### D-? · Pregunta en forma cerrada
+- Contexto: 2–3 líneas
+- Opciones: A) … B) … C) …
+- Recomendación del comité: … · Discrepa: <rol: motivo> | nadie
+- Coste de no decidir: …
+- Tareas afectadas: …
+```
+
+Al validarse, se registra en `decisiones.md` con fecha y opción elegida. Una decisión tomada solo se cambia con otra decisión que diga a cuál sustituye.
+
+## 7. Calendario
+
+- S1 = semana del lunes 2026-10-05. Semana actual = ⌊(hoy − 2026-10-05) / 7⌋ + 1.
+- Las semanas van de lunes a domingo.

@@ -24,6 +24,9 @@
 
 - **Capacidad:** 20 h/semana en total para todo (escribir, grabar, programar, redes, comunidad, administración y reuniones). Se planifican como máximo **16 h** y se reservan **4 h de colchón** para imprevistos y entrevistas de trabajo.
 - **Presupuesto:** muy limitado, **menos de 150 €** en total. Costes fijos mínimos hasta que haya ingresos.
+- **Ingresos antes del alta:** solo donaciones, y sin activar hasta que finanzas-legal revise el riesgo (D-007). No hay cobros simbólicos ni afiliados, y los pagos se prueban solo en modo test.
+
+Las decisiones fundacionales de la persona fundadora (D-001 a D-007) están en `empresa/decisiones.md`.
 
 ## Canales previstos
 

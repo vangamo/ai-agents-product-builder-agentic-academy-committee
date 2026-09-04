@@ -94,3 +94,38 @@ Al validarse, se registra en `decisiones.md` con fecha y opción elegida. Una de
 
 - S1 = semana del lunes 2026-10-05. Semana actual = ⌊(hoy − 2026-10-05) / 7⌋ + 1.
 - Las semanas van de lunes a domingo.
+
+## 8. Reglas comunes para los agentes
+
+Valen para los siete roles; cada definición de rol (`.claude/agents/<rol>.md`) solo añade lo específico de su área.
+
+1. **Lee antes de proponer:** `empresa/contexto.md`, este protocolo, `empresa/estado.md` y `empresa/decisiones.md`; después, tu documento de área y lo que indique el encargo. Operaciones lee también `empresa/backlog.md`.
+2. **Escribe solo donde te permite el §2.**
+3. **Sigue la plantilla** que te indiquen. Sé concreto: cifras, ejemplos, nombres y estimaciones en horas. Mejor 3 propuestas sólidas que 10 superficiales.
+4. **Mantén tu documento de área:** si desde tu último encargo se han validado decisiones o tareas de tu área, pásalas a él. Solo lo validado; los borradores, marcados como tales.
+5. **Respeta el presupuesto de longitud** (§9).
+6. **No inventes datos:** lo que no sepas, márcalo `[Supuesto]` o conviértelo en una pregunta cerrada para la persona fundadora.
+7. **Devuelve un resumen** de ≤ 8 líneas (≤ 10 si es un acta). El detalle va en el fichero.
+8. **No das nada por aprobado** ni ejecutas acciones en el mundo real.
+
+## 9. Presupuestos de longitud
+
+Leer cuesta: en la ronda 2 cada agente lee las rondas 1 de todos. Por eso cada fichero tiene un máximo (`docs/adr/0007-presupuestos-de-longitud.md`).
+
+| Fichero | Máximo |
+|---|---|
+| `ronda1-<rol>.md` | 150 líneas (200 en la reunión de arranque) |
+| `ronda2-<rol>.md` | 80 líneas (120 en la de arranque) |
+| `ronda3-<rol>.md` | 30 líneas por objeción |
+| `acta.md` | 150 líneas (400 en la de arranque) |
+| Respuesta a una consulta | 60 líneas |
+
+- Si no cabe, prioriza: los puntos que lideras, a fondo; el resto, solo lo que afecte a tu área.
+- Tablas y viñetas antes que prosa. No repitas el contexto ni lo que ya dice la convocatoria.
+- El detalle que no quepa va a `empresa/areas/<rol>/` como `Borrador (no validado)` y se enlaza.
+
+## 10. Privacidad
+
+- `empresa/privado/` no se versiona y solo lo escribe la persona fundadora (`docs/adr/0006-datos-personales-fuera-de-git.md`).
+- Puedes leerlo para razonar, pero en cualquier fichero versionado escribe **la consecuencia, no el dato**: «hay un trámite pendiente que cualquier ingreso podría afectar ⚖️», y no el nombre del trámite, fechas o importes personales.
+- De terceros (personas entrevistadas, alumnado), lo mínimo: nombre de pila y perfil. Nunca emails, teléfonos ni datos de salud o económicos.

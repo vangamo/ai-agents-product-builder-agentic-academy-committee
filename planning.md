@@ -53,14 +53,14 @@ Antes de esto hice un prototipo con _vibe coding_ para ver hasta dónde llegaba.
 - [x] ADR-0001 comité de subagentes · ADR-0002 estado en Markdown · ADR-0003 protocolo de consentimiento
 - [x] `CLAUDE.md` v1: la sesión principal como Secretaría del comité
 
-### Fase 1 · Fuente de verdad (31 ago – 4 sep)
+### Fase 1 · Fuente de verdad (31 ago – 4 sep) ✅
 
-- [ ] `empresa/contexto.md`: hechos y restricciones
-- [ ] `empresa/privado/` fuera de git (ADR-0006)
-- [ ] `empresa/protocolo.md` §1–7: principios, permisos, ciclo, reglas de acuerdo, formatos y calendario
-- [ ] `empresa/decisiones.md` con las decisiones fundacionales
-- [ ] `backlog.md`, `estado.md` y `metricas.md` vacíos, con su formato
-- [ ] Protocolo §8–9: reglas comunes de los agentes y presupuestos de longitud (ADR-0007)
+- [x] `empresa/contexto.md`: hechos y restricciones
+- [x] `empresa/privado/` fuera de git (ADR-0006)
+- [x] `empresa/protocolo.md` §1–7: principios, permisos, ciclo, reglas de acuerdo, formatos y calendario
+- [x] `empresa/decisiones.md` con las decisiones fundacionales
+- [x] `backlog.md`, `estado.md` y `metricas.md` vacíos, con su formato
+- [x] Protocolo §8–9: reglas comunes de los agentes y presupuestos de longitud (ADR-0007)
 
 ### Fase 2 · Los siete roles (7–11 sep)
 

@@ -11,6 +11,20 @@ Este repositorio no es la web de la academia: es la **oficina** de una empresa d
 - **Nunca das por aprobada** una tarea o decisión sin validación explícita de la persona fundadora.
 - Habla en **español**, de tú, y sé breve: el detalle está en los ficheros; enlázalos.
 
+## Equipo
+
+| Subagente               | Área                                                              | Defiende                           |
+| ----------------------- | ----------------------------------------------------------------- | ---------------------------------- |
+| `direccion-estrategica` | Posicionamiento, objetivos, hoja de ruta; preside y redacta actas | Foco y diferenciación              |
+| `contenidos`            | Catálogo de cursos, línea editorial, formatos, flujo ES/EN        | Calidad pedagógica                 |
+| `marketing`             | Marca, redes, SEO, reutilización de contenidos                    | Distribución y constancia          |
+| `ventas-comunidad`      | Embudo, newsletter, beta, feedback, comunidad, conversión         | Validar con personas reales        |
+| `finanzas-legal`        | Presupuesto, precios, cobro, fiscalidad, RGPD y legal             | Caja y cumplimiento                |
+| `producto-tecnologia`   | Arquitectura Astro, herramientas, seguridad, login, pagos         | Simplicidad, seguridad y dogfooding |
+| `operaciones`           | Capacidad (16 h/semana), estimaciones, plan semanal               | Sostenibilidad (veto de capacidad) |
+
+Las reglas comunes de todos los roles están en `empresa/protocolo.md` §8; cada fichero de `.claude/agents/` solo define lo propio del rol.
+
 ## Mapa de ficheros
 
 ```
@@ -18,5 +32,13 @@ CLAUDE.md            ← este fichero
 planning.md          ← plan de construcción de la oficina
 docs/                ← arquitectura y decisiones de diseño (ADR)
 .claude/agents/      ← definición de los 7 roles
-empresa/             ← estado del comité (ver docs/adr/0002)
+empresa/
+  contexto.md        ← hechos y restricciones (fuente de verdad)
+  protocolo.md       ← reglas de colaboración, de acuerdo y comunes a los agentes
+  estado.md          ← panel: fase, semana, plan, hitos, riesgos
+  backlog.md         ← tareas: propuestas → aprobadas → en curso → hechas
+  decisiones.md      ← registro de decisiones (pendientes y tomadas)
+  metricas.md        ← horas reales, métricas, feedback, salud del comité
+  areas/<rol>.md     ← documento vivo de cada área
+  privado/           ← datos personales: NO se versiona (ADR-0006)
 ```

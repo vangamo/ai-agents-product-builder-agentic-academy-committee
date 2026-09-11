@@ -34,6 +34,22 @@
 | Comandos | `.claude/skills/*/SKILL.md` | Procedimientos repetibles: reunión, validación, progreso y estado |
 | Estado | `empresa/` | Memoria compartida y auditable del comité |
 
+## Los roles y sus tensiones
+
+Cada rol defiende un interés que choca de forma natural con los de otros. Esa fricción es el producto: obliga a justificar.
+
+| Rol | Defiende | Choca sobre todo con |
+|---|---|---|
+| `direccion-estrategica` | Foco y diferenciación | marketing (todos los canales), producto (construir de más) |
+| `contenidos` | Calidad pedagógica | marketing (frecuencia), ventas (prometer lo que no existe) |
+| `marketing` | Distribución y constancia | contenidos, operaciones, finanzas (herramientas) |
+| `ventas-comunidad` | Validar con personas reales | dirección (foco), finanzas (gratis frente a cobrar) |
+| `finanzas-legal` | Caja y cumplimiento | producto (servicios de pago), ventas (cuándo cobrar) |
+| `producto-tecnologia` | Simplicidad, seguridad y dogfooding | finanzas (coste), operaciones (horas) |
+| `operaciones` | Sostenibilidad | todas: tiene el veto de capacidad |
+
+Ningún rol tiene terminal (`Bash`): leen, buscan en la web y escriben en sus propios ficheros.
+
 ## Flujo de una reunión
 
 ```

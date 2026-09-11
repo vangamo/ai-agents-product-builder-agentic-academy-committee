@@ -62,10 +62,10 @@ Antes de esto hice un prototipo con _vibe coding_ para ver hasta dónde llegaba.
 - [x] `backlog.md`, `estado.md` y `metricas.md` vacíos, con su formato
 - [x] Protocolo §8–9: reglas comunes de los agentes y presupuestos de longitud (ADR-0007)
 
-### Fase 2 · Los siete roles (7–11 sep)
+### Fase 2 · Los siete roles (7–11 sep) ✅
 
-- [ ] `direccion-estrategica` · `operaciones` · `producto-tecnologia` · `contenidos` · `marketing` · `ventas-comunidad` · `finanzas-legal`, cada uno con su documento de área
-- [ ] Revisión cruzada de los roles: tensiones, pesos y métricas coherentes con el protocolo
+- [x] `direccion-estrategica` · `operaciones` · `producto-tecnologia` · `contenidos` · `marketing` · `ventas-comunidad` · `finanzas-legal`, cada uno con su documento de área
+- [x] Revisión cruzada de los roles: tensiones, pesos y métricas coherentes con el protocolo
 
 ### Fase 3 · Reuniones (14–18 sep)
 

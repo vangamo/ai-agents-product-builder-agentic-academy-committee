@@ -73,7 +73,7 @@ Formato **rápido** (reuniones semanales o temas acotados): ronda 1 → acta.
 
 - Máximo **4 h** por tarea: si es más, se descompone.
 - **P1:** bloquea a otras o tiene fecha · **P2:** importante en esta fase · **P3:** deseable.
-- Los agentes escriben `T-?`; la Secretaría asigna el ID definitivo al registrar.
+- **IDs provisionales:** en las rondas, los agentes escriben `T-?`. En el acta, Dirección numera las tareas `T-p1`, `T-p2`… en orden de aparición y las usa también en las dependencias. La Secretaría las sustituye por los IDs definitivos al registrar.
 - Las tareas las ejecuta la persona fundadora: verbos de acción («Registrar…», «Escribir…», «Configurar…»). Nada de «Investigar más» sin un entregable concreto.
 - Las horas usan coma decimal (`0,5 h`) y cubren todo: hacer, revisar, publicar y documentar.
 
@@ -88,7 +88,7 @@ Formato **rápido** (reuniones semanales o temas acotados): ronda 1 → acta.
 - Tareas afectadas: …
 ```
 
-Al validarse, se registra en `decisiones.md` con fecha y opción elegida. Una decisión tomada solo se cambia con otra decisión que diga a cuál sustituye.
+En el acta, las decisiones se numeran `D-p1`, `D-p2`… igual que las tareas. Al validarse, se registra en `decisiones.md` con fecha y opción elegida. Una decisión tomada solo se cambia con otra decisión que diga a cuál sustituye.
 
 ## 7. Calendario
 

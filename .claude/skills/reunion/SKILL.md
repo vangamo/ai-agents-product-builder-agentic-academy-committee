@@ -48,3 +48,39 @@ Si quedan ⛔ cuya alternativa no ha aceptado el área proponente en su ronda 2,
 > Reunión en `<carpeta>`. RONDA 3 (resolución): lee las rondas 1 y 2. Para cada objeción bloqueante en la que estés implicado, escribe en `<carpeta>/ronda3-<rol>.md` (plantilla `empresa/plantillas/ronda3.md`) si aceptas la alternativa, propones un compromiso o mantienes tu posición, y por qué. Devuelve ≤ 5 líneas.
 
 Lo que siga bloqueado lo resuelve el acta (desempate) o se escala a la persona fundadora.
+
+## Paso 4 · Acta
+
+Lanza `direccion-estrategica`:
+
+> Preside la reunión en `<carpeta>`. Lee la convocatoria y todas las rondas. Escribe `<carpeta>/acta.md` siguiendo `empresa/plantillas/acta.md`, las reglas de acuerdo del protocolo (§4) y su presupuesto de longitud (§9). Tareas como `T-p1`, `T-p2`… y decisiones como `D-p1`, `D-p2`…, también en las dependencias. Devuelve ≤ 10 líneas.
+
+## Paso 5 · Registro
+
+1. Revisa la forma del acta: cada tarea con área, estimación ≤ 4 h, prioridad, semana y criterio de hecho; cada decisión con opciones y recomendación. Corrige solo la forma; si falta fondo, devuélvesela a `direccion-estrategica`.
+2. Asigna IDs definitivos y consecutivos (mira «Último ID usado» en `backlog.md` y `decisiones.md`) en el orden de los provisionales, sustituye cada `T-pN`/`D-pN` en el acta (también en las dependencias) y copia:
+   - las tareas a `backlog.md`, sección 🟡 Propuestas, añadiendo `- Origen: reuniones/<carpeta>`;
+   - las decisiones a `decisiones.md`, sección 🟡 Pendientes, con el mismo origen.
+
+   Actualiza «Último ID usado» en ambos ficheros.
+3. Actualiza `empresa/estado.md`: última reunión, pendiente de validar e hitos acordados.
+4. Añade una fila a «Salud del comité» en `empresa/metricas.md`: formato, ejecuciones de agentes, líneas escritas (todas las rondas y el acta), ⛔ planteadas y vivas al llegar al acta, y decisiones escaladas.
+
+## Paso 6 · Informe
+
+Responde a la persona fundadora de forma breve (el detalle está en el acta):
+
+- Acuerdos clave (3–6 viñetas).
+- Decisiones que necesitan su criterio, con la recomendación del comité.
+- Tabla de tareas propuestas (ID · título · h · prioridad · semana) con el total por semana frente a 16 h.
+- Disensos relevantes que constan en el acta.
+- Enlace al acta y siguiente paso: `/validar`.
+
+## Reglas
+
+- No añadas opiniones propias ni suavices las posiciones de los agentes.
+- No ejecutes tareas: solo se registran.
+- No edites los ficheros de ronda: son de cada agente.
+- Si un agente falla o no escribe su fichero, reinténtalo una vez; si vuelve a fallar, sigue adelante y anótalo en el acta.
+- Si un fichero supera su presupuesto de longitud en más de un 25 %, anótalo en «Salud del comité»; no lo recortes tú.
+- Si los subagentes del comité no están disponibles (p. ej., se crearon con la sesión ya abierta), usa `general-purpose` y empieza el encargo con: «Adopta el rol definido en `.claude/agents/<rol>.md`: léelo primero y síguelo estrictamente».

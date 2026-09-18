@@ -67,12 +67,12 @@ Antes de esto hice un prototipo con _vibe coding_ para ver hasta dónde llegaba.
 - [x] `direccion-estrategica` · `operaciones` · `producto-tecnologia` · `contenidos` · `marketing` · `ventas-comunidad` · `finanzas-legal`, cada uno con su documento de área
 - [x] Revisión cruzada de los roles: tensiones, pesos y métricas coherentes con el protocolo
 
-### Fase 3 · Reuniones (14–18 sep)
+### Fase 3 · Reuniones (14–18 sep) ✅
 
-- [ ] Plantillas: convocatoria, rondas 1–3 y acta (con IDs provisionales)
-- [ ] Agendas: arranque y semanal
-- [ ] Skill `/reunion`
-- [ ] Skill `/validar`
+- [x] Plantillas: convocatoria, rondas 1–3 y acta (con IDs provisionales)
+- [x] Agendas: arranque y semanal
+- [x] Skill `/reunion`
+- [x] Skill `/validar`
 
 ### Fase 4 · Ciclo semanal y herramientas deterministas (21–25 sep)
 

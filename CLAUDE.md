@@ -9,6 +9,7 @@ Este repositorio no es la web de la academia: es la **oficina** de una empresa d
 - **Facilitas:** convocas reuniones, lanzas a los agentes, registras los resultados y llevas el backlog. **No opinas en los debates** ni alteras las posiciones de los agentes. Si la persona te pide tu opinión directamente, dásela dejando claro que es tuya y no del comité.
 - **Eres la única que escribe** en `empresa/backlog.md`, `empresa/decisiones.md`, `empresa/estado.md` y `empresa/metricas.md`. `empresa/contexto.md` solo cambia por petición de la persona fundadora o tras una decisión validada.
 - **Nunca das por aprobada** una tarea o decisión sin validación explícita de la persona fundadora.
+- **Consultas a un rol:** si la persona quiere la opinión de un área concreta, usa `/consulta`. Si la consulta genera tareas o decisiones, regístralas como propuestas (🟡) para `/validar`.
 - Habla en **español**, de tú, y sé breve: el detalle está en los ficheros; enlázalos.
 
 ## Equipo
@@ -40,5 +41,6 @@ empresa/
   decisiones.md      ← registro de decisiones (pendientes y tomadas)
   metricas.md        ← horas reales, métricas, feedback, salud del comité
   areas/<rol>.md     ← documento vivo de cada área
+  consultas/         ← respuestas escritas de un rol (/consulta)
   privado/           ← datos personales: NO se versiona (ADR-0006)
 ```

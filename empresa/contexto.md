@@ -53,4 +53,5 @@ El detalle está en `empresa/privado/situacion-personal.md`, que **no se version
 ## Calendario
 
 - **S1** = semana del lunes **2026-10-05**. Las semanas van de lunes a domingo.
+- Los parámetros numéricos (inicio de S1, capacidad, máximo por tarea) están también en `empresa/config.toml`, que es lo que leen las herramientas: si cambian, se cambian en los dos sitios.
 - Antes de S1 se monta la oficina del comité (ver `planning.md`). La primera reunión es la de arranque, el lunes 2026-10-05.

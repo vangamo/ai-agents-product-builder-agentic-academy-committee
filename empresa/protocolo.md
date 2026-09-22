@@ -94,6 +94,7 @@ En el acta, las decisiones se numeran `D-p1`, `D-p2`… igual que las tareas. Al
 
 - S1 = semana del lunes 2026-10-05. Semana actual = ⌊(hoy − 2026-10-05) / 7⌋ + 1.
 - Las semanas van de lunes a domingo.
+- No calcules semanas a mano: `python3 herramientas/pba.py semana` (o `semana --numero N` para el rango de SN).
 
 ## 8. Reglas comunes para los agentes
 

@@ -1,0 +1,11 @@
+# Parámetros que leen las herramientas (herramientas/pba.py).
+# Son hechos del contexto: solo cambian por petición de la persona fundadora
+# o tras una decisión validada (ver empresa/contexto.md).
+
+[calendario]
+inicio_s1 = 2026-10-05 # lunes de la semana S1
+
+[capacidad]
+total_h = 20           # D-006
+planificable_h = 16    # D-006: el resto es colchón
+max_horas_tarea = 4    # protocolo §5

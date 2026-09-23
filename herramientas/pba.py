@@ -8,6 +8,7 @@ estándar de Python (3.11 o superior).
 Uso:
     python3 herramientas/pba.py semana [--fecha AAAA-MM-DD] [--numero N]
     python3 herramientas/pba.py ids
+    python3 herramientas/pba.py capacidad [--desde N]
 
 Opción global: --raiz <directorio> (por defecto, la raíz del repositorio).
 La fecha de hoy se puede fijar con la variable de entorno PBA_HOY=AAAA-MM-DD.
@@ -219,6 +220,44 @@ def siguiente_id(texto: str, items: list[Item], tipo: str) -> int:
 
 
 # --------------------------------------------------------------------------
+# Capacidad
+# --------------------------------------------------------------------------
+
+# Lo comprometido es lo que la persona fundadora ya ha aceptado hacer.
+COMPROMETIDO = {"aprobadas", "en-curso", "hechas"}
+
+
+@dataclass
+class Balance:
+    semana: int
+    comprometido: float = 0.0
+    propuesto: float = 0.0
+
+    @property
+    def total(self) -> float:
+        return self.comprometido + self.propuesto
+
+
+def balance_capacidad(tareas: list[Item]) -> tuple[list[Balance], list[Item]]:
+    """Horas por semana. Devuelve también las tareas que no se pueden contar
+    (sin semana o sin estimación) para que no desaparezcan en silencio."""
+    por_semana: dict[int, Balance] = {}
+    sin_contar: list[Item] = []
+    for t in tareas:
+        if t.estado not in COMPROMETIDO | {"propuestas"}:
+            continue
+        if t.semana is None or t.horas is None:
+            sin_contar.append(t)
+            continue
+        b = por_semana.setdefault(t.semana, Balance(t.semana))
+        if t.estado == "propuestas":
+            b.propuesto += t.horas
+        else:
+            b.comprometido += t.horas
+    return [por_semana[s] for s in sorted(por_semana)], sin_contar
+
+
+# --------------------------------------------------------------------------
 # Comandos
 # --------------------------------------------------------------------------
 
@@ -259,6 +298,38 @@ def cmd_ids(args: argparse.Namespace, raiz: Path) -> int:
     return codigo
 
 
+def cmd_capacidad(args: argparse.Namespace, raiz: Path) -> int:
+    config = cargar_config(raiz)
+    balances, sin_contar = balance_capacidad(cargar_tareas(raiz))
+    if args.desde is not None:
+        balances = [b for b in balances if b.semana >= args.desde]
+    cap = config.capacidad_h
+    print("| Semana | Fechas | Comprometido | Propuesto | Total | Capacidad | Holgura |")
+    print("|---|---|---|---|---|---|---|")
+    excedidas = []
+    for b in balances:
+        holgura = cap - b.total
+        marca = " ⚠️" if holgura < 0 else ""
+        if holgura < 0:
+            excedidas.append(b.semana)
+        print(
+            f"| S{b.semana} | {rango_semana(b.semana, config.inicio_s1)} | {formato_horas(b.comprometido)} "
+            f"| {formato_horas(b.propuesto)} | {formato_horas(b.total)} | {formato_horas(cap)} "
+            f"| {formato_horas(holgura)}{marca} |"
+        )
+    if not balances:
+        print("| — | — | 0 | 0 | 0 | " + formato_horas(cap) + " | — |")
+    print()
+    print("Comprometido = aprobadas + en curso + hechas. Propuesto = pendiente de /validar.")
+    for t in sin_contar:
+        print(f"⚠️ {t.id} no cuenta: le falta la semana o la estimación.")
+    if excedidas:
+        semanas = ", ".join(f"S{s}" for s in excedidas)
+        print(f"⚠️ Por encima de {formato_horas(cap)} h: {semanas}. Operaciones debe proponer recorte o reprogramación.")
+        return 1
+    return 0
+
+
 def construir_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="pba", description="Herramientas deterministas de la oficina del comité.")
     parser.add_argument("--raiz", type=Path, default=RAIZ_POR_DEFECTO, help="raíz del repositorio")
@@ -271,6 +342,10 @@ def construir_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser("ids", help="último ID usado y siguiente libre de tareas y decisiones")
     p.set_defaults(func=cmd_ids)
+
+    p = sub.add_parser("capacidad", help="horas comprometidas y propuestas por semana frente a la capacidad")
+    p.add_argument("--desde", type=int, metavar="N", help="muestra solo desde la semana SN")
+    p.set_defaults(func=cmd_capacidad)
 
     return parser
 

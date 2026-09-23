@@ -9,6 +9,7 @@ Uso:
     python3 herramientas/pba.py semana [--fecha AAAA-MM-DD] [--numero N]
     python3 herramientas/pba.py ids
     python3 herramientas/pba.py capacidad [--desde N]
+    python3 herramientas/pba.py check [--estricto]
 
 Opción global: --raiz <directorio> (por defecto, la raíz del repositorio).
 La fecha de hoy se puede fijar con la variable de entorno PBA_HOY=AAAA-MM-DD.
@@ -258,6 +259,111 @@ def balance_capacidad(tareas: list[Item]) -> tuple[list[Balance], list[Item]]:
 
 
 # --------------------------------------------------------------------------
+# Validación del formato (check)
+# --------------------------------------------------------------------------
+
+RE_REFERENCIA = re.compile(r"\b([TD])-(\d{3,})\b")
+RE_PROVISIONAL = re.compile(r"\b([TD])-(?:p\d+\b|\?)")
+
+CAMPOS_TAREA_OBLIGATORIOS = ("Área", "Estimación", "Prioridad", "Hecho cuando")
+CAMPOS_TAREA_RECOMENDADOS = ("Semana", "Depende de", "Por qué")
+# Un campo puede tener variantes: la primera es la del protocolo.
+CAMPOS_DECISION_PENDIENTE = ("Contexto", "Opciones", ("Recomendación del comité", "Recomendación"))
+
+
+@dataclass
+class Hallazgo:
+    nivel: str  # "error" | "aviso"
+    fichero: str
+    linea: int
+    mensaje: str
+
+    def __str__(self) -> str:
+        icono = "❌" if self.nivel == "error" else "⚠️"
+        return f"{icono} {self.fichero}:{self.linea} · {self.mensaje}"
+
+
+def _comprobar_ids(items: list[Item], texto: str, fichero: str, tipo: str) -> list[Hallazgo]:
+    hallazgos = []
+    vistos: dict[str, Item] = {}
+    for item in items:
+        if item.id in vistos:
+            hallazgos.append(Hallazgo("error", fichero, item.linea, f"{item.id} está duplicado (también en la línea {vistos[item.id].linea})"))
+        vistos.setdefault(item.id, item)
+    declarado = ultimo_id_declarado(texto, tipo)
+    maximo = max((i.numero for i in items), default=0)
+    if declarado is None:
+        hallazgos.append(Hallazgo("error", fichero, 1, "falta la línea «Último ID usado»"))
+    elif maximo > declarado:
+        hallazgos.append(Hallazgo("error", fichero, 1, f"«Último ID usado» dice {tipo}-{declarado:03d}, pero existe {tipo}-{maximo:03d}"))
+    for n, linea in enumerate(texto.splitlines(), start=1):
+        if RE_PROVISIONAL.search(linea):
+            hallazgos.append(Hallazgo("error", fichero, n, "queda un ID provisional (T-?, T-pN, D-?, D-pN): hay que registrarlo con un ID definitivo"))
+    return hallazgos
+
+
+def _comprobar_referencias(item: Item, fichero: str, existentes: set[str]) -> list[Hallazgo]:
+    hallazgos = []
+    for m in RE_REFERENCIA.finditer("\n".join(item.lineas[1:])):
+        ref = f"{m.group(1)}-{int(m.group(2)):03d}"
+        if ref != item.id and ref not in existentes:
+            hallazgos.append(Hallazgo("aviso", fichero, item.linea, f"{item.id} cita {ref}, que no existe"))
+    return hallazgos
+
+
+def comprobar(raiz: Path, config: Config) -> list[Hallazgo]:
+    texto_b = leer(raiz, "backlog.md")
+    texto_d = leer(raiz, "decisiones.md")
+    tareas = parsear_items(texto_b, "T", ESTADOS_TAREA)
+    decisiones = parsear_items(texto_d, "D", ESTADOS_DECISION)
+    existentes = {i.id for i in tareas} | {i.id for i in decisiones}
+    hallazgos: list[Hallazgo] = []
+
+    hallazgos += _comprobar_ids(tareas, texto_b, "backlog.md", "T")
+    for t in tareas:
+        if t.estado == "?":
+            hallazgos.append(Hallazgo("aviso", "backlog.md", t.linea, f"{t.id} está fuera de una sección conocida (🟡 ✅ 🔵 ✔️ ❌)"))
+        if t.estado != "descartadas":
+            for campo in CAMPOS_TAREA_OBLIGATORIOS:
+                if t.campo(campo) is None:
+                    hallazgos.append(Hallazgo("error", "backlog.md", t.linea, f"{t.id} no tiene «{campo}»"))
+        if t.estado in {"propuestas", "aprobadas", "en-curso"}:
+            for campo in CAMPOS_TAREA_RECOMENDADOS:
+                if t.campo(campo) is None:
+                    hallazgos.append(Hallazgo("aviso", "backlog.md", t.linea, f"{t.id} no tiene «{campo}»"))
+        if t.horas is not None and t.horas > config.max_horas_tarea:
+            hallazgos.append(Hallazgo("error", "backlog.md", t.linea, f"{t.id} estima {formato_horas(t.horas)} h: el máximo es {formato_horas(config.max_horas_tarea)} h, hay que descomponerla"))
+        if t.campo("Prioridad") is not None and t.prioridad not in {"P1", "P2", "P3"}:
+            hallazgos.append(Hallazgo("error", "backlog.md", t.linea, f"{t.id} tiene una prioridad que no es P1, P2 ni P3"))
+        if t.estado in {"aprobadas", "en-curso"} and t.campo("Validada") is None:
+            hallazgos.append(Hallazgo("aviso", "backlog.md", t.linea, f"{t.id} está aprobada pero no consta «Validada: AAAA-MM-DD»"))
+        if t.estado == "hechas" and t.campo("Hecha") is None:
+            hallazgos.append(Hallazgo("aviso", "backlog.md", t.linea, f"{t.id} está hecha pero no consta «Hecha: AAAA-MM-DD»"))
+        hallazgos += _comprobar_referencias(t, "backlog.md", existentes)
+
+    hallazgos += _comprobar_ids(decisiones, texto_d, "decisiones.md", "D")
+    for d in decisiones:
+        if d.estado == "pendientes":
+            for campo in CAMPOS_DECISION_PENDIENTE:
+                variantes = campo if isinstance(campo, tuple) else (campo,)
+                if all(d.campo(v) is None for v in variantes):
+                    hallazgos.append(Hallazgo("error", "decisiones.md", d.linea, f"{d.id} no tiene «{variantes[0]}»"))
+            if d.campo("Coste de no decidir") is None:
+                hallazgos.append(Hallazgo("aviso", "decisiones.md", d.linea, f"{d.id} no tiene «Coste de no decidir»"))
+        elif d.estado == "tomadas" and d.campo("Fecha") is None:
+            hallazgos.append(Hallazgo("error", "decisiones.md", d.linea, f"{d.id} está tomada pero no tiene «Fecha»"))
+        elif d.estado == "?":
+            hallazgos.append(Hallazgo("aviso", "decisiones.md", d.linea, f"{d.id} está fuera de una sección conocida (🟡 ✅)"))
+        hallazgos += _comprobar_referencias(d, "decisiones.md", existentes)
+
+    balances, _ = balance_capacidad(tareas)
+    for b in balances:
+        if b.comprometido > config.capacidad_h:
+            hallazgos.append(Hallazgo("aviso", "backlog.md", 1, f"S{b.semana} tiene {formato_horas(b.comprometido)} h comprometidas, por encima de {formato_horas(config.capacidad_h)} h"))
+    return hallazgos
+
+
+# --------------------------------------------------------------------------
 # Comandos
 # --------------------------------------------------------------------------
 
@@ -330,6 +436,21 @@ def cmd_capacidad(args: argparse.Namespace, raiz: Path) -> int:
     return 0
 
 
+def cmd_check(args: argparse.Namespace, raiz: Path) -> int:
+    config = cargar_config(raiz)
+    hallazgos = comprobar(raiz, config)
+    errores = [h for h in hallazgos if h.nivel == "error"]
+    avisos = [h for h in hallazgos if h.nivel == "aviso"]
+    for h in errores + avisos:
+        print(h)
+    tareas = cargar_tareas(raiz)
+    decisiones = cargar_decisiones(raiz)
+    print(f"{len(tareas)} tareas y {len(decisiones)} decisiones revisadas · {len(errores)} errores · {len(avisos)} avisos")
+    if errores or (args.estricto and avisos):
+        return 1
+    return 0
+
+
 def construir_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="pba", description="Herramientas deterministas de la oficina del comité.")
     parser.add_argument("--raiz", type=Path, default=RAIZ_POR_DEFECTO, help="raíz del repositorio")
@@ -346,6 +467,10 @@ def construir_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("capacidad", help="horas comprometidas y propuestas por semana frente a la capacidad")
     p.add_argument("--desde", type=int, metavar="N", help="muestra solo desde la semana SN")
     p.set_defaults(func=cmd_capacidad)
+
+    p = sub.add_parser("check", help="valida el formato del backlog y del registro de decisiones")
+    p.add_argument("--estricto", action="store_true", help="los avisos también hacen fallar")
+    p.set_defaults(func=cmd_check)
 
     return parser
 

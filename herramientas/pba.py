@@ -2,14 +2,19 @@
 """pba · herramientas deterministas de la oficina del comité.
 
 Resuelven con código lo que no debe calcular un modelo de lenguaje: fechas
-y semanas, IDs y sumas de horas (docs/adr/0004). Solo usan la librería
+y semanas, IDs y sumas de horas, validación de formato y paso de las tareas de un acta
+al backlog (docs/adr/0004). Solo usan la librería
 estándar de Python (3.11 o superior).
+
+Los comandos que escriben (registrar) simulan por defecto y solo escriben
+con --aplicar.
 
 Uso:
     python3 herramientas/pba.py semana [--fecha AAAA-MM-DD] [--numero N]
     python3 herramientas/pba.py ids
     python3 herramientas/pba.py capacidad [--desde N]
     python3 herramientas/pba.py check [--estricto]
+    python3 herramientas/pba.py registrar <carpeta-de-reunión> [--aplicar]
 
 Opción global: --raiz <directorio> (por defecto, la raíz del repositorio).
 La fecha de hoy se puede fijar con la variable de entorno PBA_HOY=AAAA-MM-DD.
@@ -79,6 +84,10 @@ def leer(raiz: Path, nombre: str) -> str:
         return ruta.read_text(encoding="utf-8")
     except FileNotFoundError as e:
         raise ErrorPBA(f"No existe {ruta}") from e
+
+
+def plural(n: int, singular: str, plural_: str) -> str:
+    return f"{n} {singular if n == 1 else plural_}"
 
 
 def formato_horas(horas: float) -> str:
@@ -364,6 +373,142 @@ def comprobar(raiz: Path, config: Config) -> list[Hallazgo]:
 
 
 # --------------------------------------------------------------------------
+# Registro de un acta (registrar)
+# --------------------------------------------------------------------------
+
+RE_ENCABEZADO_PROVISIONAL = re.compile(r"^###\s+([TD])-(p\d+|\?)\s+·\s+(.*\S)\s*$")
+RE_REF_PROVISIONAL = re.compile(r"\b([TD])-p(\d+)\b")
+MARCAS_VACIO = {"_(ninguna)_", "_(ninguno)_"}
+
+
+@dataclass
+class Bloque:
+    """Tarea o decisión del acta, todavía con su ID provisional."""
+
+    tipo: str
+    provisional: str  # "p1", "p2"… o "?" si el acta no los numeró
+    titulo: str
+    linea: int
+    lineas: list[str]
+
+    @property
+    def clave(self) -> str:
+        return f"{self.tipo}-{self.provisional}"
+
+
+@dataclass
+class PlanRegistro:
+    mapa: dict[str, str]  # "T-p1" → "T-026"
+    tareas: list[Bloque]
+    decisiones: list[Bloque]
+    acta: str  # el acta con los IDs definitivos
+
+
+def extraer_bloques(texto: str) -> list[Bloque]:
+    bloques: list[Bloque] = []
+    actual: Bloque | None = None
+    en_codigo = False
+    for n, linea in enumerate(texto.splitlines(), start=1):
+        if linea.lstrip().startswith("```"):
+            en_codigo = not en_codigo
+        m = None if en_codigo else RE_ENCABEZADO_PROVISIONAL.match(linea)
+        if m:
+            actual = Bloque(m.group(1), m.group(2), m.group(3), n, [])
+            bloques.append(actual)
+            continue
+        if not en_codigo and linea.startswith("#"):
+            actual = None
+            continue
+        if actual is not None:
+            actual.lineas.append(linea)
+    for b in bloques:
+        while b.lineas and not b.lineas[-1].strip():
+            b.lineas.pop()
+    return bloques
+
+
+def _sustituir(texto: str, mapa: dict[str, str]) -> str:
+    return RE_REF_PROVISIONAL.sub(lambda m: mapa[f"{m.group(1)}-p{m.group(2)}"], texto)
+
+
+def planificar_registro(texto_acta: str, siguiente_t: int, siguiente_d: int) -> PlanRegistro:
+    """Asigna IDs definitivos en orden de aparición. No escribe nada."""
+    bloques = extraer_bloques(texto_acta)
+    sin_numerar = [b for b in bloques if b.provisional == "?"]
+    if sin_numerar:
+        lineas = ", ".join(str(b.linea) for b in sin_numerar)
+        raise ErrorPBA(
+            f"El acta usa T-?/D-? (líneas {lineas}). Numera los IDs provisionales "
+            "(T-p1, T-p2…, D-p1…) para poder resolver las dependencias."
+        )
+    if not bloques:
+        raise ErrorPBA("El acta no tiene tareas ni decisiones con ID provisional: ¿ya está registrada?")
+    mapa: dict[str, str] = {}
+    vistos: dict[str, Bloque] = {}
+    for b in bloques:
+        if b.clave in vistos:
+            raise ErrorPBA(f"{b.clave} aparece dos veces en el acta (líneas {vistos[b.clave].linea} y {b.linea})")
+        vistos[b.clave] = b
+        if b.tipo == "T":
+            mapa[b.clave] = f"T-{siguiente_t:03d}"
+            siguiente_t += 1
+        else:
+            mapa[b.clave] = f"D-{siguiente_d:03d}"
+            siguiente_d += 1
+    citados = {f"{m.group(1)}-p{m.group(2)}" for m in RE_REF_PROVISIONAL.finditer(texto_acta)}
+    sin_definir = sorted(citados - mapa.keys())
+    if sin_definir:
+        raise ErrorPBA(f"El acta cita {', '.join(sin_definir)}, pero no define ningún bloque con ese ID")
+    return PlanRegistro(
+        mapa=mapa,
+        tareas=[b for b in bloques if b.tipo == "T"],
+        decisiones=[b for b in bloques if b.tipo == "D"],
+        acta=_sustituir(texto_acta, mapa),
+    )
+
+
+def bloque_definitivo(bloque: Bloque, mapa: dict[str, str], origen: str) -> str:
+    lineas = [f"### {mapa[bloque.clave]} · {_sustituir(bloque.titulo, mapa)}", *bloque.lineas]
+    texto = _sustituir("\n".join(lineas), mapa)
+    if not re.search(r"Origen\**\s*:", texto):
+        texto += f"\n- Origen: {origen}"
+    return texto
+
+
+def insertar_en_seccion(texto: str, emoji: str, bloques: list[str]) -> str:
+    """Añade los bloques al final de la sección «## <emoji> …», quitando «_(ninguna)_»."""
+    lineas = texto.splitlines()
+    inicio = next((i for i, l in enumerate(lineas) if l.startswith("## ") and emoji in l), None)
+    if inicio is None:
+        raise ErrorPBA(f"No encuentro la sección «## {emoji} …»")
+    fin = next((i for i in range(inicio + 1, len(lineas)) if lineas[i].startswith("## ")), len(lineas))
+    cuerpo = [l for l in lineas[inicio + 1 : fin] if l.strip() not in MARCAS_VACIO]
+    while cuerpo and not cuerpo[0].strip():
+        cuerpo.pop(0)
+    while cuerpo and not cuerpo[-1].strip():
+        cuerpo.pop()
+    seccion = [""] + (cuerpo + [""] if cuerpo else [])
+    for b in bloques:
+        seccion += [*b.splitlines(), ""]
+    final = "\n" if texto.endswith("\n") else ""
+    return "\n".join(lineas[: inicio + 1] + seccion + lineas[fin:]) + final
+
+
+def actualizar_ultimo_id(texto: str, tipo: str, numero: int) -> str:
+    patron = re.compile(rf"(Último ID usado:\s*){tipo}-\d+")
+    if not patron.search(texto):
+        raise ErrorPBA(f"Falta la línea «Último ID usado: {tipo}-…»")
+    return patron.sub(lambda m: f"{m.group(1)}{tipo}-{numero:03d}", texto, count=1)
+
+
+def resolver_carpeta(argumento: str, raiz: Path) -> Path:
+    for candidato in (Path(argumento), raiz / argumento, raiz / "empresa" / "reuniones" / argumento):
+        if (candidato / "acta.md").is_file():
+            return candidato.resolve()
+    raise ErrorPBA(f"No encuentro «{argumento}/acta.md» (ni en empresa/reuniones/)")
+
+
+# --------------------------------------------------------------------------
 # Comandos
 # --------------------------------------------------------------------------
 
@@ -445,9 +590,55 @@ def cmd_check(args: argparse.Namespace, raiz: Path) -> int:
         print(h)
     tareas = cargar_tareas(raiz)
     decisiones = cargar_decisiones(raiz)
-    print(f"{len(tareas)} tareas y {len(decisiones)} decisiones revisadas · {len(errores)} errores · {len(avisos)} avisos")
+    print(
+        f"{plural(len(tareas), 'tarea', 'tareas')} y {plural(len(decisiones), 'decisión', 'decisiones')} revisadas"
+        f" · {plural(len(errores), 'error', 'errores')} · {plural(len(avisos), 'aviso', 'avisos')}"
+    )
     if errores or (args.estricto and avisos):
         return 1
+    return 0
+
+
+def cmd_registrar(args: argparse.Namespace, raiz: Path) -> int:
+    carpeta = resolver_carpeta(args.carpeta, raiz)
+    origen = f"reuniones/{carpeta.name}"
+    texto_b = leer(raiz, "backlog.md")
+    texto_d = leer(raiz, "decisiones.md")
+    if f"Origen: {origen}" in texto_b or f"Origen: {origen}" in texto_d:
+        raise ErrorPBA(f"Ya hay tareas o decisiones con «Origen: {origen}»: esta acta ya se registró")
+    sig_t = siguiente_id(texto_b, parsear_items(texto_b, "T", ESTADOS_TAREA), "T")
+    sig_d = siguiente_id(texto_d, parsear_items(texto_d, "D", ESTADOS_DECISION), "D")
+    ruta_acta = carpeta / "acta.md"
+    plan = planificar_registro(ruta_acta.read_text(encoding="utf-8"), sig_t, sig_d)
+
+    print(f"Acta: {ruta_acta.relative_to(raiz) if ruta_acta.is_relative_to(raiz) else ruta_acta}")
+    for b in plan.decisiones + plan.tareas:
+        print(f"  {b.clave:<6} → {plan.mapa[b.clave]} · {b.titulo}")
+    if not args.aplicar:
+        print("Simulación: no se ha escrito nada. Repite con --aplicar para registrar.")
+        return 0
+
+    if plan.tareas:
+        texto_b = insertar_en_seccion(texto_b, "🟡", [bloque_definitivo(b, plan.mapa, origen) for b in plan.tareas])
+        texto_b = actualizar_ultimo_id(texto_b, "T", sig_t + len(plan.tareas) - 1)
+    if plan.decisiones:
+        texto_d = insertar_en_seccion(texto_d, "🟡", [bloque_definitivo(b, plan.mapa, origen) for b in plan.decisiones])
+        texto_d = actualizar_ultimo_id(texto_d, "D", sig_d + len(plan.decisiones) - 1)
+    (raiz / "empresa" / "backlog.md").write_text(texto_b, encoding="utf-8")
+    (raiz / "empresa" / "decisiones.md").write_text(texto_d, encoding="utf-8")
+    ruta_acta.write_text(plan.acta, encoding="utf-8")
+
+    print(
+        f"Registradas {plural(len(plan.tareas), 'tarea', 'tareas')} y "
+        f"{plural(len(plan.decisiones), 'decisión', 'decisiones')}; el acta ya usa los IDs definitivos."
+    )
+    errores = [h for h in comprobar(raiz, cargar_config(raiz)) if h.nivel == "error"]
+    if errores:
+        print(f"⚠️ check encuentra {len(errores)} errores tras registrar:")
+        for h in errores:
+            print(f"  {h}")
+        return 1
+    print("Siguiente paso: actualizar estado.md y validar con /validar.")
     return 0
 
 
@@ -471,6 +662,11 @@ def construir_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("check", help="valida el formato del backlog y del registro de decisiones")
     p.add_argument("--estricto", action="store_true", help="los avisos también hacen fallar")
     p.set_defaults(func=cmd_check)
+
+    p = sub.add_parser("registrar", help="pasa las tareas y decisiones de un acta al backlog con IDs definitivos")
+    p.add_argument("carpeta", help="carpeta de la reunión (p. ej., 2026-10-05-arranque)")
+    p.add_argument("--aplicar", action="store_true", help="escribe los cambios (por defecto, solo simula)")
+    p.set_defaults(func=cmd_registrar)
 
     return parser
 

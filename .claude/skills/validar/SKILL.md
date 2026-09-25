@@ -23,7 +23,7 @@ Las tareas pueden depender de ellas. Para cada decisión pendiente (hasta 4 por 
 
 ## 3. Tareas
 
-1. Muestra una tabla compacta de las propuestas, agrupadas por semana: ID · título · área · h · prioridad · depende de, con el total de horas de cada semana (propuestas + ya aprobadas) frente a 16 h. Señala las tareas que dejan de tener sentido por las decisiones recién tomadas y propón descartarlas.
+1. Muestra una tabla compacta de las propuestas, agrupadas por semana: ID · título · área · h · prioridad · depende de. Debajo, la tabla de `python3 herramientas/pba.py capacidad` (comprometido + propuesto frente a 16 h): no sumes a mano. Señala las tareas que dejan de tener sentido por las decisiones recién tomadas y propón descartarlas.
 2. Pregunta con AskUserQuestion: «Aprobar todas» · «Aprobar P1 y P2 (aparcar P3)» · «Revisar una a una». La persona puede responder en texto libre (p. ej., «todas menos T-004; T-007 a 2 h; T-010 a S3»).
 3. Si elige revisar una a una: AskUserQuestion con `multiSelect` (hasta 4 tareas por pregunta y 4 preguntas por llamada). Las marcadas se aprueban; de las no marcadas, pregunta si se aparcan o se descartan.
 
@@ -32,10 +32,13 @@ Las tareas pueden depender de ellas. Para cada decisión pendiente (hasta 4 por 
 - **Decisiones** → ✅ Tomadas, con `- Fecha: AAAA-MM-DD · Elegida: <opción>` (y la recomendación original si se eligió otra). Si la decisión cambia un hecho de `empresa/contexto.md`, actualízalo y dilo.
 - **Tareas aprobadas** → ✅ Aprobadas, con `- Validada: AAAA-MM-DD` y los cambios pedidos ya aplicados (estimación, semana…).
 - **Aparcadas o descartadas** → ❌, con `- Motivo: …` (pregunta el motivo solo si no es obvio).
-- **Capacidad:** si las aprobadas de una semana suman más de 16 h, avisa y propón qué mover (P3 primero); no lo muevas sin confirmación.
+- **Capacidad:** al terminar, ejecuta `python3 herramientas/pba.py capacidad`. Si alguna semana pasa de 16 h comprometidas, avisa y propón qué mover (P3 primero); no lo muevas sin confirmación.
 - Actualiza `empresa/estado.md`: plan de la semana actual (aprobadas de esta semana, en orden sugerido por dependencias y prioridad), pendiente de validar y decisiones recientes.
 - Si en «Salud del comité» está la fila de la reunión de origen, completa «Elegida ≠ recomendada» con el número de decisiones en las que se eligió otra opción.
 
 ## 5. Cerrar
+
+Ejecuta `python3 herramientas/pba.py check` y corrige los errores de forma que hayas introducido.
+
 
 Resumen breve: decisiones tomadas, horas aprobadas por semana y las 3 primeras tareas por las que empezar.

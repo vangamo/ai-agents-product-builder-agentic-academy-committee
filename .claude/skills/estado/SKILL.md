@@ -8,7 +8,7 @@ description: Muestra el estado actual de Product Builder Academy (semana y fase,
 Solo lectura: no modifiques ningún fichero.
 
 1. Lee `empresa/estado.md`, `empresa/backlog.md`, `empresa/decisiones.md` y la última fila de `empresa/metricas.md`.
-2. Calcula la semana actual con la fórmula del protocolo §7.
+2. Ejecuta `python3 herramientas/pba.py semana` y `python3 herramientas/pba.py capacidad --desde <semana actual>`: usa sus cifras, no calcules a mano.
 3. Responde en ≤ 15 líneas:
    - Semana y fase.
    - Plan de la semana: tareas (ID, título, h, estado) y horas hechas / planificadas / 16.

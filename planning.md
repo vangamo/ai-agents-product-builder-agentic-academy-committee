@@ -74,11 +74,11 @@ Antes de esto hice un prototipo con _vibe coding_ para ver hasta dónde llegaba.
 - [x] Skill `/reunion`
 - [x] Skill `/validar`
 
-### Fase 4 · Ciclo semanal y herramientas deterministas (21–25 sep)
+### Fase 4 · Ciclo semanal y herramientas deterministas (21–25 sep) ✅
 
-- [ ] Skills `/progreso`, `/estado` y `/consulta`
-- [ ] `herramientas/pba.py`: `semana`, `ids`, `capacidad`, `check` y `registrar`, con tests (ADR-0004)
-- [ ] Las skills usan `pba.py` en lugar de calcular a mano
+- [x] Skills `/progreso`, `/estado` y `/consulta`
+- [x] `herramientas/pba.py`: `semana`, `ids`, `capacidad`, `check` y `registrar`, con tests (ADR-0004)
+- [x] Las skills usan `pba.py` en lugar de calcular a mano
 
 ### Fase 5 · Guardarraíles y calidad (28 sep – 2 oct)
 

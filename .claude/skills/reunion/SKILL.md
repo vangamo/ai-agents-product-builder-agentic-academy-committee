@@ -14,7 +14,7 @@ Entrada: `$ARGUMENTS`
 ## Paso 0 · Preparación
 
 1. Lee `empresa/contexto.md`, `empresa/protocolo.md`, `empresa/estado.md`, `empresa/decisiones.md`, `empresa/backlog.md` y el acta de la reunión más reciente en `empresa/reuniones/` (si la hay).
-2. Calcula la semana actual con la fórmula del protocolo §7.
+2. Fecha y semana: `python3 herramientas/pba.py semana`. No las calcules a mano.
 3. **Agenda:**
    - Si el primer término de la entrada coincide con `empresa/agendas/<nombre>.md`, úsala (incluida su preparación previa).
    - Si no, construye una agenda de 1–4 puntos a partir del tema, con el rol que lidera cada punto.
@@ -23,7 +23,7 @@ Entrada: `$ARGUMENTS`
 4. **Formato:** el que diga la agenda; `--rapida` fuerza el rápido (ronda 1 → acta). Por defecto, completo.
 5. **Modo:** con `--economica`, las rondas 1–3 se lanzan con `model: "sonnet"` y el acta con el modelo por defecto (ADR-0007).
 6. **Asistentes:** `direccion-estrategica` y `operaciones` siempre, más las áreas que el tema necesite (o las que fije la agenda). Cada asistente extra encarece la reunión: invita solo a quien tenga algo que decidir o aportar.
-7. Crea `empresa/reuniones/AAAA-MM-DD-<slug>/` (si ya existe, añade el sufijo `-2`) y escribe `00-convocatoria.md` con `empresa/plantillas/convocatoria.md`. En «Contexto relevante», incluye las decisiones, tareas y datos que los agentes deban tener en cuenta y **la capacidad ya comprometida por semana** (horas de las tareas aprobadas y en curso).
+7. Crea `empresa/reuniones/AAAA-MM-DD-<slug>/` (si ya existe, añade el sufijo `-2`) y escribe `00-convocatoria.md` con `empresa/plantillas/convocatoria.md`. En «Contexto relevante», incluye las decisiones, tareas y datos que los agentes deban tener en cuenta y **la capacidad ya comprometida por semana**: pega la tabla de `python3 herramientas/pba.py capacidad --desde <semana actual>`.
 
 ## Paso 1 · Ronda de propuestas
 
@@ -58,11 +58,10 @@ Lanza `direccion-estrategica`:
 ## Paso 5 · Registro
 
 1. Revisa la forma del acta: cada tarea con área, estimación ≤ 4 h, prioridad, semana y criterio de hecho; cada decisión con opciones y recomendación. Corrige solo la forma; si falta fondo, devuélvesela a `direccion-estrategica`.
-2. Asigna IDs definitivos y consecutivos (mira «Último ID usado» en `backlog.md` y `decisiones.md`) en el orden de los provisionales, sustituye cada `T-pN`/`D-pN` en el acta (también en las dependencias) y copia:
-   - las tareas a `backlog.md`, sección 🟡 Propuestas, añadiendo `- Origen: reuniones/<carpeta>`;
-   - las decisiones a `decisiones.md`, sección 🟡 Pendientes, con el mismo origen.
-
-   Actualiza «Último ID usado» en ambos ficheros.
+2. Registra con la herramienta, no a mano:
+   - `python3 herramientas/pba.py registrar <carpeta>` simula y muestra la correspondencia `T-pN → T-NNN`. Revísala.
+   - `python3 herramientas/pba.py registrar <carpeta> --aplicar` sustituye los IDs en el acta (también en las dependencias), copia las tareas a 🟡 Propuestas y las decisiones a 🟡 Pendientes con `- Origen: reuniones/<carpeta>`, actualiza «Último ID usado» y pasa `check`.
+   - Si falla (IDs sin numerar, referencias a un `T-pN` que no existe…), corrige la forma del acta y repite. Si el problema es de fondo, devuélvesela a `direccion-estrategica`.
 3. Actualiza `empresa/estado.md`: última reunión, pendiente de validar e hitos acordados.
 4. Añade una fila a «Salud del comité» en `empresa/metricas.md`: formato, ejecuciones de agentes, líneas escritas (todas las rondas y el acta), ⛔ planteadas y vivas al llegar al acta, y decisiones escaladas.
 

@@ -15,6 +15,7 @@ Uso:
     python3 herramientas/pba.py capacidad [--desde N]
     python3 herramientas/pba.py check [--estricto]
     python3 herramientas/pba.py registrar <carpeta-de-reunión> [--aplicar]
+    python3 herramientas/pba.py contexto-sesion
 
 Opción global: --raiz <directorio> (por defecto, la raíz del repositorio).
 La fecha de hoy se puede fijar con la variable de entorno PBA_HOY=AAAA-MM-DD.
@@ -642,6 +643,58 @@ def cmd_registrar(args: argparse.Namespace, raiz: Path) -> int:
     return 0
 
 
+def resumen_sesion(raiz: Path, fecha: dt.date) -> list[str]:
+    config = cargar_config(raiz)
+    numero = numero_semana(fecha, config.inicio_s1)
+    lineas = [f"Hoy es {describir_fecha(fecha)} · semana {describir_semana(numero, config.inicio_s1)}."]
+
+    tareas = cargar_tareas(raiz)
+    decisiones = cargar_decisiones(raiz)
+    propuestas = [t for t in tareas if t.estado == "propuestas"]
+    pendientes = [d for d in decisiones if d.estado == "pendientes"]
+    if propuestas or pendientes:
+        horas = sum(t.horas or 0 for t in propuestas)
+        lineas.append(
+            f"Pendiente de validar: {plural(len(pendientes), 'decisión', 'decisiones')} y "
+            f"{plural(len(propuestas), 'tarea', 'tareas')} ({formato_horas(horas)} h). Sugiere /validar."
+        )
+    actuales = [t for t in tareas if t.semana == numero and t.estado in {"aprobadas", "en-curso", "hechas"}]
+    if actuales:
+        hechas = sum(t.horas or 0 for t in actuales if t.estado == "hechas")
+        total = sum(t.horas or 0 for t in actuales)
+        lineas.append(f"Plan de S{numero}: {formato_horas(hechas)} h hechas de {formato_horas(total)} h comprometidas (capacidad {formato_horas(config.capacidad_h)} h).")
+
+    carpetas = sorted(p for p in (raiz / "empresa" / "reuniones").glob("*/") if p.is_dir())
+    if carpetas:
+        ultima = carpetas[-1].name
+        try:
+            dias = (fecha - dt.date.fromisoformat(ultima[:10])).days
+            lineas.append(f"Última reunión: {ultima} (hace {plural(dias, 'día', 'días')}).")
+            if dias > 7:
+                lineas.append("Han pasado más de 7 días: toca /reunion semanal.")
+        except ValueError:
+            lineas.append(f"Última reunión: {ultima}.")
+    else:
+        lineas.append("Aún no hay reuniones: la primera es /reunion arranque.")
+
+    texto_b, texto_d = leer(raiz, "backlog.md"), leer(raiz, "decisiones.md")
+    lineas.append(f"Siguientes IDs: T-{siguiente_id(texto_b, tareas, 'T'):03d} · D-{siguiente_id(texto_d, decisiones, 'D'):03d}.")
+    lineas.append("Fechas, IDs, horas y registro de actas: usa `python3 herramientas/pba.py`, no calcules a mano.")
+    return lineas
+
+
+def cmd_contexto_sesion(args: argparse.Namespace, raiz: Path) -> int:
+    """Para el hook SessionStart: nunca falla, como mucho avisa."""
+    try:
+        lineas = resumen_sesion(raiz, hoy())
+    except Exception as e:  # noqa: BLE001 — un fallo aquí no debe impedir abrir la sesión
+        lineas = [f"No se pudo preparar el contexto de la oficina ({e}). Ejecuta `python3 herramientas/pba.py check`."]
+    print("Oficina de Product Builder Academy")
+    for linea in lineas:
+        print(f"- {linea}")
+    return 0
+
+
 def construir_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="pba", description="Herramientas deterministas de la oficina del comité.")
     parser.add_argument("--raiz", type=Path, default=RAIZ_POR_DEFECTO, help="raíz del repositorio")
@@ -667,6 +720,9 @@ def construir_parser() -> argparse.ArgumentParser:
     p.add_argument("carpeta", help="carpeta de la reunión (p. ej., 2026-10-05-arranque)")
     p.add_argument("--aplicar", action="store_true", help="escribe los cambios (por defecto, solo simula)")
     p.set_defaults(func=cmd_registrar)
+
+    p = sub.add_parser("contexto-sesion", help="resumen para el hook SessionStart (fecha, semana, pendientes)")
+    p.set_defaults(func=cmd_contexto_sesion)
 
     return parser
 

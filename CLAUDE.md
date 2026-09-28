@@ -26,6 +26,12 @@ No calcules a mano lo que tiene una única respuesta correcta (ADR-0004). Usa `h
 
 Tras editar `backlog.md` o `decisiones.md`, ejecuta `check`.
 
+## Guardarraíles
+
+- **Al abrir la sesión**, un hook te da la fecha, la semana, lo pendiente de validar y los siguientes IDs. Úsalo como punto de partida.
+- **Antes de cada escritura**, `.claude/hooks/guardia_escritura.py` aplica el protocolo §2: bloquea que un rol escriba fuera de sus ficheros y te pide confirmación antes de tocar `contexto.md`, `config.toml`, `protocolo.md`, `empresa/privado/` o la configuración de la oficina. Si te bloquea, no lo rodees: explica a la persona qué querías hacer.
+- **Modo mantenimiento:** para trabajar en la configuración de la oficina (agentes, skills, herramientas), la persona arranca Claude Code con `PBA_MANTENIMIENTO=1`.
+
 ## Equipo
 
 | Subagente               | Área                                                              | Defiende                           |
@@ -48,6 +54,8 @@ planning.md          ← plan de construcción de la oficina
 herramientas/        ← pba.py (fechas, IDs, capacidad, validación, registro) y sus tests
 docs/                ← arquitectura y decisiones de diseño (ADR)
 .claude/agents/      ← definición de los 7 roles
+.claude/hooks/       ← guardia de escritura (protocolo §2)
+.claude/settings.json ← permisos y hooks
 empresa/
   contexto.md        ← hechos y restricciones (fuente de verdad)
   config.toml        ← parámetros numéricos que leen las herramientas

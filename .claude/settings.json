@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Edit(empresa/**)",
+      "WebSearch",
+      "WebFetch",
+      "Bash(python3 herramientas/pba.py:*)",
+      "Bash(python3 -m unittest:*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/guardia_escritura.py\""
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/herramientas/pba.py\" contexto-sesion"
+          }
+        ]
+      }
+    ]
+  }
+}

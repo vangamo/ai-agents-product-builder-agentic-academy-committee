@@ -98,5 +98,6 @@ Una decisión tomada solo se cambia con otra decisión que diga a cuál sustituy
 | [0002](adr/0002-estado-en-markdown.md) | El estado compartido vive en ficheros Markdown versionados |
 | [0003](adr/0003-protocolo-de-consentimiento.md) | Las reuniones siguen un protocolo de consentimiento con rondas a ciegas |
 | [0004](adr/0004-herramientas-deterministas.md) | Lo calculable (fechas, IDs, horas, formato) lo resuelve `herramientas/pba.py`, no el modelo |
+| [0005](adr/0005-guardarrailes-con-hooks.md) | La matriz «quién escribe dónde» la hace cumplir un hook `PreToolUse` |
 | [0006](adr/0006-datos-personales-fuera-de-git.md) | Los datos personales viven en `empresa/privado/`, fuera de git |
 | [0007](adr/0007-presupuestos-de-longitud.md) | Cada fichero de reunión tiene un presupuesto de longitud |

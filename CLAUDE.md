@@ -23,6 +23,7 @@ No calcules a mano lo que tiene una única respuesta correcta (ADR-0004). Usa `h
 | `python3 herramientas/pba.py capacidad` | Horas comprometidas y propuestas por semana frente a 16 h |
 | `python3 herramientas/pba.py check` | Formato de backlog y decisiones, IDs, referencias y capacidad |
 | `python3 herramientas/pba.py registrar <carpeta> [--aplicar]` | Pasa tareas y decisiones del acta al backlog con IDs definitivos |
+| `python3 herramientas/pba.py privacidad` | Busca términos sensibles de `empresa/privado/` en ficheros versionables (también lo hace `check`) |
 
 Tras editar `backlog.md` o `decisiones.md`, ejecuta `check`.
 

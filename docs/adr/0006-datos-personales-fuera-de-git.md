@@ -14,7 +14,7 @@ El repositorio es, además, portafolio: puede acabar siendo público. Y lo que e
 1. Los datos personales y administrativos van en **`empresa/privado/`**, que está en `.gitignore` (salvo su `README.md`).
 2. `contexto.md` solo recoge las **consecuencias** que el comité debe asumir («probablemente no aplica la tarifa plana ⚖️»), nunca el dato que las origina.
 3. Los agentes pueden leer `empresa/privado/`, pero no escribir en él, y en los ficheros versionados escriben la consecuencia, no el dato (protocolo §10).
-4. La persona fundadora mantiene en `empresa/privado/terminos-sensibles.txt` una lista de términos que nunca deben aparecer en ficheros versionados; una herramienta los busca antes de cada commit (ver ADR-0004).
+4. La persona fundadora mantiene en `empresa/privado/terminos-sensibles.txt` una lista de términos que nunca deben aparecer en ficheros versionados. `pba.py privacidad` (y `pba.py check`) los busca sin distinguir mayúsculas ni tildes; con `=` delante, la coincidencia es exacta (siglas).
 
 ## Alternativas consideradas
 

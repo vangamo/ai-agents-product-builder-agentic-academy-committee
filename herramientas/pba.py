@@ -3,7 +3,8 @@
 
 Resuelven con código lo que no debe calcular un modelo de lenguaje: fechas
 y semanas, IDs y sumas de horas, validación de formato y paso de las tareas de un acta
-al backlog (docs/adr/0004). Solo usan la librería
+al backlog (docs/adr/0004), y búsqueda de datos personales en ficheros
+versionados (docs/adr/0006). Solo usan la librería
 estándar de Python (3.11 o superior).
 
 Los comandos que escriben (registrar) simulan por defecto y solo escriben
@@ -15,6 +16,7 @@ Uso:
     python3 herramientas/pba.py capacidad [--desde N]
     python3 herramientas/pba.py check [--estricto]
     python3 herramientas/pba.py registrar <carpeta-de-reunión> [--aplicar]
+    python3 herramientas/pba.py privacidad
     python3 herramientas/pba.py contexto-sesion
 
 Opción global: --raiz <directorio> (por defecto, la raíz del repositorio).
@@ -27,8 +29,10 @@ import argparse
 import datetime as dt
 import os
 import re
+import subprocess
 import sys
 import tomllib
+import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -370,6 +374,87 @@ def comprobar(raiz: Path, config: Config) -> list[Hallazgo]:
     for b in balances:
         if b.comprometido > config.capacidad_h:
             hallazgos.append(Hallazgo("aviso", "backlog.md", 1, f"S{b.semana} tiene {formato_horas(b.comprometido)} h comprometidas, por encima de {formato_horas(config.capacidad_h)} h"))
+
+    terminos = cargar_terminos(raiz)
+    if terminos:
+        hallazgos += buscar_terminos(raiz, terminos)
+    return hallazgos
+
+
+# --------------------------------------------------------------------------
+# Privacidad: términos sensibles en ficheros versionados
+# --------------------------------------------------------------------------
+
+FICHERO_TERMINOS = Path("empresa") / "privado" / "terminos-sensibles.txt"
+EXTENSIONES_TEXTO = {".md", ".txt", ".py", ".json", ".toml", ".yml", ".yaml", ".html", ".csv"}
+EXCLUIDOS = {".git", "__pycache__"}
+PRIVADO = "empresa/privado/"
+
+
+def normalizar(texto: str) -> str:
+    """Sin tildes y sin distinguir mayúsculas: «Cesé» → «cese»."""
+    descompuesto = unicodedata.normalize("NFD", texto)
+    return "".join(c for c in descompuesto if not unicodedata.combining(c)).casefold()
+
+
+@dataclass(frozen=True)
+class Termino:
+    texto: str
+    exacto: bool  # «=SIGLA»: distingue mayúsculas y tildes
+
+    def patron(self) -> re.Pattern[str]:
+        cuerpo = re.escape(self.texto if self.exacto else normalizar(self.texto))
+        return re.compile(rf"(?<!\w){cuerpo}(?!\w)")
+
+
+def cargar_terminos(raiz: Path) -> list[Termino] | None:
+    """None si el fichero no existe (p. ej., en la CI, donde privado/ no está)."""
+    ruta = raiz / FICHERO_TERMINOS
+    if not ruta.is_file():
+        return None
+    terminos = []
+    for linea in ruta.read_text(encoding="utf-8").splitlines():
+        linea = linea.strip()
+        if not linea or linea.startswith("#"):
+            continue
+        if linea.startswith("="):
+            terminos.append(Termino(linea[1:].strip(), exacto=True))
+        else:
+            terminos.append(Termino(linea, exacto=False))
+    return terminos
+
+
+def ficheros_versionables(raiz: Path) -> list[Path]:
+    """Lo que git subiría: seguidos + nuevos no ignorados. Sin git, recorre el árbol."""
+    try:
+        r = subprocess.run(
+            ["git", "-C", str(raiz), "ls-files", "--cached", "--others", "--exclude-standard", "-z"],
+            capture_output=True, check=True,
+        )
+        rutas = [raiz / p for p in r.stdout.decode("utf-8").split("\0") if p]
+    except (OSError, subprocess.CalledProcessError):
+        rutas = [p for p in raiz.rglob("*") if p.is_file() and not EXCLUIDOS & set(p.relative_to(raiz).parts)]
+    return sorted(
+        p
+        for p in rutas
+        if p.suffix in EXTENSIONES_TEXTO and p.is_file() and not p.relative_to(raiz).as_posix().startswith(PRIVADO)
+    )
+
+
+def buscar_terminos(raiz: Path, terminos: list[Termino]) -> list[Hallazgo]:
+    patrones = [(t, t.patron()) for t in terminos]
+    hallazgos = []
+    for ruta in ficheros_versionables(raiz):
+        try:
+            lineas = ruta.read_text(encoding="utf-8").splitlines()
+        except UnicodeDecodeError:
+            continue
+        rel = ruta.relative_to(raiz).as_posix()
+        for n, linea in enumerate(lineas, start=1):
+            normalizada = normalizar(linea)
+            for termino, patron in patrones:
+                if patron.search(linea if termino.exacto else normalizada):
+                    hallazgos.append(Hallazgo("error", rel, n, f"contiene un término sensible («{termino.texto}»): escribe la consecuencia, no el dato (protocolo §10)"))
     return hallazgos
 
 
@@ -643,6 +728,19 @@ def cmd_registrar(args: argparse.Namespace, raiz: Path) -> int:
     return 0
 
 
+def cmd_privacidad(args: argparse.Namespace, raiz: Path) -> int:
+    terminos = cargar_terminos(raiz)
+    if terminos is None:
+        print(f"No existe {FICHERO_TERMINOS}: no hay términos que buscar.")
+        return 0
+    hallazgos = buscar_terminos(raiz, terminos)
+    for h in hallazgos:
+        print(h)
+    revisados = len(ficheros_versionables(raiz))
+    print(f"{plural(revisados, 'fichero versionable revisado', 'ficheros versionables revisados')} · {plural(len(terminos), 'término', 'términos')} · {plural(len(hallazgos), 'coincidencia', 'coincidencias')}")
+    return 1 if hallazgos else 0
+
+
 def resumen_sesion(raiz: Path, fecha: dt.date) -> list[str]:
     config = cargar_config(raiz)
     numero = numero_semana(fecha, config.inicio_s1)
@@ -720,6 +818,9 @@ def construir_parser() -> argparse.ArgumentParser:
     p.add_argument("carpeta", help="carpeta de la reunión (p. ej., 2026-10-05-arranque)")
     p.add_argument("--aplicar", action="store_true", help="escribe los cambios (por defecto, solo simula)")
     p.set_defaults(func=cmd_registrar)
+
+    p = sub.add_parser("privacidad", help="busca términos sensibles (empresa/privado/terminos-sensibles.txt) en ficheros versionables")
+    p.set_defaults(func=cmd_privacidad)
 
     p = sub.add_parser("contexto-sesion", help="resumen para el hook SessionStart (fecha, semana, pendientes)")
     p.set_defaults(func=cmd_contexto_sesion)

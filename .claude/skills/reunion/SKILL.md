@@ -1,7 +1,7 @@
 ---
 name: reunion
 description: Convoca una reunión del comité de agentes de Product Builder Academy sobre una agenda o un tema, con rondas de propuestas, revisión cruzada y acta con tareas y decisiones para validar.
-argument-hint: <agenda (arranque, semanal…) o tema libre> [--rapida] [--economica]
+argument-hint: <agenda (arranque, semanal, retro) o tema libre> [--rapida] [--economica]
 disable-model-invocation: true
 ---
 

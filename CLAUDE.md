@@ -66,6 +66,8 @@ empresa/
   backlog.md         ← tareas: propuestas → aprobadas → en curso → hechas
   decisiones.md      ← registro de decisiones (pendientes y tomadas)
   metricas.md        ← horas reales, métricas, feedback, salud del comité
+  agendas/           ← agendas reutilizables (arranque, semanal, retro)
+  plantillas/        ← convocatoria, rondas y acta
   areas/<rol>.md     ← documento vivo de cada área
   consultas/         ← respuestas escritas de un rol (/consulta)
   privado/           ← datos personales: NO se versiona (ADR-0006)

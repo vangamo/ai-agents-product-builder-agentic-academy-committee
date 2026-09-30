@@ -63,7 +63,7 @@ class TestSkills(unittest.TestCase):
                 self.assertTrue(fm.get("description"))
 
     def test_las_agendas_citadas_existen(self):
-        for nombre in ("arranque", "semanal"):
+        for nombre in ("arranque", "semanal", "retro"):
             self.assertTrue((RAIZ / "empresa" / "agendas" / f"{nombre}.md").is_file())
 
 

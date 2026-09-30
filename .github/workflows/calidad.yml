@@ -1,0 +1,29 @@
+name: Calidad
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  comprobar:
+    name: Tests y estado de la oficina
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Tests de las herramientas, del hook y de la configuración
+        run: python -m unittest discover -s herramientas/tests -v
+
+      - name: Formato del backlog y del registro de decisiones
+        run: python herramientas/pba.py check
+
+      # La búsqueda de términos sensibles solo corre en local (pre-commit):
+      # en la CI no existe empresa/privado/, a propósito.

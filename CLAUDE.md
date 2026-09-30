@@ -31,6 +31,7 @@ Tras editar `backlog.md` o `decisiones.md`, ejecuta `check`.
 
 - **Al abrir la sesión**, un hook te da la fecha, la semana, lo pendiente de validar y los siguientes IDs. Úsalo como punto de partida.
 - **Antes de cada escritura**, `.claude/hooks/guardia_escritura.py` aplica el protocolo §2: bloquea que un rol escriba fuera de sus ficheros y te pide confirmación antes de tocar `contexto.md`, `config.toml`, `protocolo.md`, `empresa/privado/` o la configuración de la oficina. Si te bloquea, no lo rodees: explica a la persona qué querías hacer.
+- **Antes de cada commit**, `.githooks/pre-commit` ejecuta `pba.py check` (con la búsqueda de términos sensibles). Se activa una vez por clon con `git config core.hooksPath .githooks`. La CI (`.github/workflows/calidad.yml`) repite los tests y `check`, sin la parte privada.
 - **Modo mantenimiento:** para trabajar en la configuración de la oficina (agentes, skills, herramientas), la persona arranca Claude Code con `PBA_MANTENIMIENTO=1`.
 
 ## Equipo

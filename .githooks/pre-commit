@@ -1,0 +1,8 @@
+#!/bin/sh
+# Hook de git: valida la oficina antes de cada commit, incluida la búsqueda de
+# términos sensibles, que solo puede hacerse en local (empresa/privado/).
+# Activar una vez por clon:  git config core.hooksPath .githooks
+python3 herramientas/pba.py check || {
+  echo "pre-commit: pba.py check ha encontrado errores. Corrígelos o usa --no-verify si sabes lo que haces." >&2
+  exit 1
+}

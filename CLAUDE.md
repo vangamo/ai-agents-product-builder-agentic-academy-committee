@@ -54,6 +54,7 @@ Las reglas comunes de todos los roles están en `empresa/protocolo.md` §8; cada
 CLAUDE.md            ← este fichero
 planning.md          ← plan de construcción de la oficina
 herramientas/        ← pba.py (fechas, IDs, capacidad, validación, registro) y sus tests
+evals/               ← escenarios para evaluar el comportamiento del comité
 docs/                ← arquitectura y decisiones de diseño (ADR)
 .claude/agents/      ← definición de los 7 roles
 .claude/hooks/       ← guardia de escritura (protocolo §2)

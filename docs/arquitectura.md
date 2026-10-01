@@ -8,22 +8,24 @@
                         Persona fundadora
                valida · ejecuta · escribe el contenido
                               │
-                              │  /reunion · /validar · /progreso · /estado
+                              │  /reunion · /validar · /progreso · /estado · /consulta
                               ▼
         ┌──────────── Sesión principal = Secretaría ────────────┐
-        │  facilita, registra y lleva el backlog; no opina       │
-        └──────┬──────────────────────────────────┬─────────────┘
-               │ lanza en paralelo                │ lee y escribe
-               ▼                                  ▼
-   Subagentes del comité (.claude/agents/)   empresa/  · estado en Markdown
-   ─ direccion-estrategica (preside)          contexto · protocolo
-   ─ contenidos     ─ marketing               backlog · decisiones
-   ─ ventas-comunidad                         estado · metricas
-   ─ finanzas-legal ─ producto-tecnologia     areas/ · reuniones/
-   ─ operaciones (veto de capacidad)
-               │                                  ▲
-               └──── escriben sus rondas y ───────┘
-                     su documento de área
+        │  facilita, registra y lleva el backlog; no opina       │◄── SessionStart: fecha, semana,
+        └──────┬───────────────────┬──────────────┬─────────────┘    pendientes (pba.py)
+               │ lanza en paralelo │ invoca       │ lee y escribe
+               ▼                   ▼              ▼
+   Subagentes del comité    herramientas/pba.py   empresa/  · estado en Markdown
+   (.claude/agents/)        semana · ids          contexto · config.toml · protocolo
+   ─ direccion-estrategica  capacidad · check     backlog · decisiones · estado
+   ─ contenidos ─ marketing registrar             metricas · areas/ · reuniones/
+   ─ ventas-comunidad       privacidad            consultas/ · privado/ (fuera de git)
+   ─ finanzas-legal                                       ▲
+   ─ producto-tecnologia                                  │
+   ─ operaciones                                          │
+               │                                          │
+               └── escriben rondas y áreas ──► guardia_escritura.py (PreToolUse)
+                                               aplica «quién escribe dónde»
 ```
 
 | Componente | Dónde | Responsabilidad |
@@ -31,8 +33,10 @@
 | Persona fundadora | — | Decide, valida, ejecuta en el mundo real y escribe el contenido |
 | Secretaría | sesión principal de Claude Code (`CLAUDE.md`) | Convoca, lanza a los agentes, registra resultados y mantiene el estado. No opina |
 | Comité | `.claude/agents/*.md` | Siete roles con mandato, intereses y métricas propias. Proponen, no ejecutan |
-| Comandos | `.claude/skills/*/SKILL.md` | Procedimientos repetibles: reunión, validación, progreso y estado |
+| Comandos | `.claude/skills/*/SKILL.md` | Procedimientos repetibles: reunión, validación, progreso, estado y consulta |
 | Estado | `empresa/` | Memoria compartida y auditable del comité |
+| Herramientas | `herramientas/pba.py` | Lo determinista: fechas, IDs, capacidad, validación, registro de actas y privacidad |
+| Guardarraíles | `.claude/hooks/`, `.githooks/`, `.github/workflows/` | Hacen cumplir en código las reglas que importan |
 
 ## Los roles y sus tensiones
 
@@ -67,6 +71,45 @@ Convocatoria ─► Ronda 1 ─────────► Ronda 2 ────�
 6. **Registro y validación.** La Secretaría pasa tareas y decisiones al backlog como propuestas, y la persona fundadora las aprueba, ajusta o descarta.
 
 Formato **rápido** para reuniones semanales y temas acotados: ronda 1 → acta.
+
+## Capas de control
+
+Las reglas importantes no dependen solo de que el modelo las siga. De la más blanda a la más dura:
+
+| Capa | Mecanismo | Qué garantiza |
+|---|---|---|
+| 1 · Instrucciones | Roles, protocolo, plantillas y skills | El comportamiento esperado, con su porqué |
+| 2 · Formato | Plantillas con campos fijos y presupuestos de longitud | Salidas comparables y baratas de leer |
+| 3 · Cálculo determinista | `pba.py semana`, `ids`, `capacidad`, `registrar` | Fechas, IDs y sumas correctos y reproducibles |
+| 4 · Permisos en tiempo de ejecución | Hook `guardia_escritura.py` + `settings.json` | Cada rol escribe solo en sus ficheros; los hechos piden confirmación |
+| 5 · Validación antes de versionar | `pre-commit` → `pba.py check` (formato, IDs, capacidad, privacidad) | Nada roto ni sensible entra en git |
+| 6 · Integración continua | GitHub Actions: tests + `check` | El contrato se mantiene en cada cambio |
+| 7 · Persona fundadora | `/validar` | Nada se aprueba ni se ejecuta sin ella |
+
+## Matriz de escritura
+
+Lo que dice el protocolo §2 y aplica el hook (ADR-0005):
+
+| Fichero | Rol del comité | Dirección | Secretaría | Persona fundadora |
+|---|---|---|---|---|
+| `areas/<su-rol>.md`, `areas/<su-rol>/*` | ✍️ | ✍️ (la suya) | ⛔ | ✍️ |
+| `reuniones/*/ronda[123]-<su-rol>.md` | ✍️ | ✍️ (la suya) | ⛔ | ✍️ |
+| `reuniones/*/acta.md` | ⛔ | ✍️ | ✍️ (forma e IDs) | ✍️ |
+| `reuniones/*/00-convocatoria.md` | ⛔ | ⛔ | ✍️ | ✍️ |
+| `consultas/*-<su-rol>-*.md` | ✍️ | ✍️ (la suya) | ✍️ | ✍️ |
+| `backlog`, `decisiones`, `estado`, `metricas` | ⛔ | ⛔ | ✍️ | ✍️ |
+| `contexto.md`, `config.toml`, `protocolo.md` | ⛔ | ⛔ | ❓ confirma | ✍️ |
+| `privado/` | ⛔ (solo lee) | ⛔ (solo lee) | ❓ confirma | ✍️ |
+| Fuera de `empresa/` | ⛔ | ⛔ | ❓ confirma (o `PBA_MANTENIMIENTO=1`) | ✍️ |
+
+## Coste de una reunión
+
+| Formato | Ejecuciones de agentes | Lectura dominante |
+|---|---|---|
+| Rápido (semanal, 3–5 asistentes) | 4–6 | El acta lee 3–5 rondas 1 |
+| Completo (7 asistentes) | 15–17 | Cada ronda 2 lee las 7 rondas 1 (≈ 7 × 7 lecturas) |
+
+Por eso hay presupuestos de longitud (ADR-0007), asistentes mínimos y `--economica` para las rondas. La tabla «Salud del comité» de `empresa/metricas.md` registra el coste real de cada reunión.
 
 ## Modelo de datos
 

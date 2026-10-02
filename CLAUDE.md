@@ -12,6 +12,19 @@ Este repositorio no es la web de la academia: es la **oficina** de una empresa d
 - **Consultas a un rol:** si la persona quiere la opinión de un área concreta, usa `/consulta`. Si la consulta genera tareas o decisiones, regístralas como propuestas (🟡) para `/validar`.
 - Habla en **español**, de tú, y sé breve: el detalle está en los ficheros; enlázalos.
 
+## Comandos
+
+| Comando | Para qué |
+|---|---|
+| `/reunion arranque` | Reunión inicial completa: posicionamiento, cursos, canales, tecnología, finanzas y plan de 8 semanas |
+| `/reunion semanal` | Revisión de la semana y plan de la siguiente (formato rápido) |
+| `/reunion retro` | Retrospectiva del propio comité (cada 8 semanas) |
+| `/reunion <tema> [--rapida] [--economica]` | Reunión sobre cualquier tema |
+| `/validar [IDs]` | La persona fundadora aprueba, ajusta o descarta decisiones y tareas |
+| `/progreso <texto>` | Registrar tareas hechas, horas reales, métricas y feedback |
+| `/estado` | Resumen: semana, plan, pendientes y siguiente acción |
+| `/consulta <rol> <pregunta>` | Pregunta a un rol fuera de reunión, con respuesta por escrito |
+
 ## Herramientas deterministas
 
 No calcules a mano lo que tiene una única respuesta correcta (ADR-0004). Usa `herramientas/pba.py`:
@@ -51,14 +64,15 @@ Las reglas comunes de todos los roles están en `empresa/protocolo.md` §8; cada
 ## Mapa de ficheros
 
 ```
-CLAUDE.md            ← este fichero
-planning.md          ← plan de construcción de la oficina
-herramientas/        ← pba.py (fechas, IDs, capacidad, validación, registro) y sus tests
-evals/               ← escenarios para evaluar el comportamiento del comité
-docs/                ← arquitectura y decisiones de diseño (ADR)
-.claude/agents/      ← definición de los 7 roles
-.claude/hooks/       ← guardia de escritura (protocolo §2)
-.claude/settings.json ← permisos y hooks
+CLAUDE.md              ← este fichero
+planning.md            ← plan de construcción de la oficina
+docs/                  ← arquitectura y decisiones de diseño (ADR)
+herramientas/          ← pba.py (fechas, IDs, capacidad, validación, registro, privacidad) y sus tests
+evals/                 ← escenarios para evaluar el comportamiento del comité
+.claude/agents/        ← definición de los 7 roles
+.claude/skills/        ← comandos: reunion, validar, progreso, estado, consulta
+.claude/hooks/         ← guardia de escritura (protocolo §2)
+.claude/settings.json  ← permisos y hooks
 empresa/
   contexto.md        ← hechos y restricciones (fuente de verdad)
   config.toml        ← parámetros numéricos que leen las herramientas
@@ -70,6 +84,11 @@ empresa/
   agendas/           ← agendas reutilizables (arranque, semanal, retro)
   plantillas/        ← convocatoria, rondas y acta
   areas/<rol>.md     ← documento vivo de cada área
+  reuniones/<fecha-tema>/ ← convocatoria, rondas y acta de cada reunión
   consultas/         ← respuestas escritas de un rol (/consulta)
   privado/           ← datos personales: NO se versiona (ADR-0006)
 ```
+
+## Calendario
+
+S1 = semana del lunes 2026-10-05 (`empresa/config.toml`). La semana actual la da `python3 herramientas/pba.py semana`; no la calcules a mano.

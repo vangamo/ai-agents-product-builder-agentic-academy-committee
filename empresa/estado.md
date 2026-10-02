@@ -2,7 +2,7 @@
 
 > Panel de control. Lo mantiene la Secretaría tras cada reunión, validación o registro de progreso.
 
-- **Fase:** montaje de la oficina (antes de S1)
+- **Fase:** oficina lista; arranque el lunes 2026-10-05 (S1)
 - **Semana actual:** —
 - **Capacidad:** 16 h planificables + 4 h de colchón
 - **Última reunión:** ninguna
@@ -25,7 +25,7 @@ _(vacío: se rellena al validar tareas)_
 
 ## Para la próxima reunión
 
-- 
+- Reunión de arranque (`/reunion arranque`) el lunes 2026-10-05, con los siete roles y formato completo.
 
 ## Riesgos abiertos
 

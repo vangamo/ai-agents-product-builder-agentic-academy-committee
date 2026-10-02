@@ -80,20 +80,43 @@ Antes de esto hice un prototipo con _vibe coding_ para ver hasta dónde llegaba.
 - [x] `herramientas/pba.py`: `semana`, `ids`, `capacidad`, `check` y `registrar`, con tests (ADR-0004)
 - [x] Las skills usan `pba.py` en lugar de calcular a mano
 
-### Fase 5 · Guardarraíles y calidad (28 sep – 2 oct)
+### Fase 5 · Guardarraíles y calidad (28 sep – 2 oct) ✅
 
-- [ ] Hook de guardia de escritura por rol (ADR-0005) y `settings.json`
-- [ ] Contexto de sesión automático (fecha, semana y pendientes)
-- [ ] `pba.py privacidad`: términos sensibles en ficheros versionados
-- [ ] CI en GitHub Actions
-- [ ] Agenda de retrospectiva del comité
-- [ ] Escenarios de evaluación (`evals/`)
-- [ ] README completo
+- [x] Hook de guardia de escritura por rol (ADR-0005) y `settings.json`
+- [x] Contexto de sesión automático (fecha, semana y pendientes)
+- [x] `pba.py privacidad`: términos sensibles en ficheros versionados
+- [x] CI en GitHub Actions
+- [x] Agenda de retrospectiva del comité
+- [x] Escenarios de evaluación (`evals/`)
+- [x] README completo
 
 ### Fase 6 · Arranque (5 oct)
 
+Comprobación previa (2 oct):
+
+- [x] 77 tests en verde y `pba.py check` sin errores ni avisos
+- [x] `empresa/privado/situacion-personal.md` y `terminos-sensibles.txt` creados en local; `pba.py privacidad` sin coincidencias y el historial de git limpio
+- [x] Hooks de git activos (`core.hooksPath .githooks`)
+- [x] Escenarios automáticos de `evals/` (E02, E11, E12, E13) en verde
+- [ ] Escenarios manuales de `evals/`: se ejecutan tras la primera reunión real, con datos
+
+Reunión:
+
 - [ ] Reunión de arranque completa con los siete roles
 - [ ] Registro de tareas y decisiones con `pba.py registrar`, y estado actualizado
+
+## Balance de la construcción
+
+| Fase | Commits | Entregado |
+|---|---|---|
+| 0 · Diseño | 7 | Análisis del prototipo, arquitectura, ADR 0001–0003, `CLAUDE.md` |
+| 1 · Fuente de verdad | 7 | Contexto, privacidad (ADR-0006), protocolo §1–10, registros, ADR-0007 |
+| 2 · Roles | 8 | Siete agentes con su documento de área y revisión cruzada |
+| 3 · Reuniones | 7 | Plantillas con IDs provisionales, agendas, `/reunion`, `/validar` |
+| 4 · Herramientas | 7 | `/progreso`, `/estado`, `/consulta`; `pba.py` con 5 comandos y tests (ADR-0004) |
+| 5 · Guardarraíles | 9 | Hook de guardia (ADR-0005), contexto de sesión, privacidad, CI, retro, evals, docs |
+
+Lo que más ha cambiado respecto al plan inicial: probar `pba.py check` contra el backlog del prototipo destapó un campo que el parser no reconocía («Recomendación del comité»), y la primera pasada de `pba.py privacidad` encontró términos reales en mis propios tests. Las dos cosas confirman la idea de partida: lo que no se comprueba en código acaba fallando sin que se note.
 
 ## Fuera de alcance (por ahora)
 

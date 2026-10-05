@@ -34,4 +34,4 @@ _(ninguno todavía)_
 
 ## Borradores
 
-_(ninguno)_
+- `finanzas-legal/consulta-profesional.md` · Borrador (no validado) · dossier de preguntas para la consulta fiscal y de Seguridad Social propuesta en la reunión de arranque (2026-10-05).

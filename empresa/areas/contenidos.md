@@ -24,4 +24,4 @@ _(pendiente)_
 
 ## Borradores
 
-_(ninguno)_
+- [Guía de estilo y glosario ES/EN](contenidos/guia-estilo-glosario.md) · Borrador (no validado) · reunión de arranque 2026-10-05

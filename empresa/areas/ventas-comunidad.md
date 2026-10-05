@@ -29,4 +29,4 @@ _(pendiente)_
 
 ## Borradores
 
-_(ninguno)_
+- [Perfiles, guía de entrevistas y encuestas de la beta](ventas-comunidad/borrador-entrevistas-y-encuestas.md) · Borrador (no validado) · ronda 1 del arranque (2026-10-05)

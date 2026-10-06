@@ -71,3 +71,4 @@
 | Fecha | Modelo | Escenarios | Resultado | Notas |
 |---|---|---|---|---|
 | 2026-10-01 | — | E02, E11, E12, E13 (auto) | ✅ | 77 tests en verde |
+| 2026-10-05 | Opus 5.5 | E05, E09, E10, E13 (manual, sobre la reunión de arranque) | ✅ | Ninguna ronda 1 cita a otra; todos los ficheros dentro de su presupuesto; las reservas constan en el acta; `pba.py privacidad`, 0 coincidencias |

@@ -98,12 +98,12 @@ Comprobación previa (2 oct):
 - [x] `empresa/privado/situacion-personal.md` y `terminos-sensibles.txt` creados en local; `pba.py privacidad` sin coincidencias y el historial de git limpio
 - [x] Hooks de git activos (`core.hooksPath .githooks`)
 - [x] Escenarios automáticos de `evals/` (E02, E11, E12, E13) en verde
-- [ ] Escenarios manuales de `evals/`: se ejecutan tras la primera reunión real, con datos
+- [ ] Escenarios manuales de `evals/`: se ejecutan tras la primera reunión real, con datos (E09, E10 y E13 ya se comprobaron en el arranque)
 
 Reunión:
 
-- [ ] Reunión de arranque completa con los siete roles
-- [ ] Registro de tareas y decisiones con `pba.py registrar`, y estado actualizado
+- [x] Reunión de arranque completa con los siete roles
+- [x] Registro de tareas y decisiones con `pba.py registrar`, y estado actualizado
 
 ## Balance de la construcción
 
@@ -115,6 +115,7 @@ Reunión:
 | 3 · Reuniones | 7 | Plantillas con IDs provisionales, agendas, `/reunion`, `/validar` |
 | 4 · Herramientas | 7 | `/progreso`, `/estado`, `/consulta`; `pba.py` con 5 comandos y tests (ADR-0004) |
 | 5 · Guardarraíles | 9 | Hook de guardia (ADR-0005), contexto de sesión, privacidad, CI, retro, evals, docs |
+| 6 · Arranque | 3 | Reunión completa con los siete roles (22 ejecuciones, ~2.550 líneas), acta y registro con `pba.py registrar`: 18 tareas y 5 decisiones para `/validar` |
 
 Lo que más ha cambiado respecto al plan inicial: probar `pba.py check` contra el backlog del prototipo destapó un campo que el parser no reconocía («Recomendación del comité»), y la primera pasada de `pba.py privacidad` encontró términos reales en mis propios tests. Las dos cosas confirman la idea de partida: lo que no se comprueba en código acaba fallando sin que se note.
 
